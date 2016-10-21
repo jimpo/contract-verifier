@@ -1,0 +1,12 @@
+{
+  "name": "contract-source-verifier",
+  "version": "1.0.0",
+  "description": "DApp for looking up and verifying contract source code",
+  "author": "jim.posen@gmail.com",
+  "license": "MIT",
+  "devDependencies": {
+    "solc": "^0.4.2",
+    "web3": "^0.17.0-beta",
+    "webpack": "^1.13.2"
+  }
+}
