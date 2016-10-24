@@ -12,7 +12,8 @@ module.exports = {
         exclude: /node_modules/,
         loader: 'babel',
         query: {
-          presets: ['es2015', 'react']
+          presets: ['es2015', 'react', 'stage-0'],
+          plugins: ['transform-decorators-legacy', 'transform-class-properties']
         }
       },
       {
@@ -22,6 +23,10 @@ module.exports = {
       {
         test: /\.less$/,
         loaders: ['style', 'css', 'less']
+      },
+      {
+        test: /\.(eot|svg|ttf|woff|woff2)$/,
+        loader: 'url'
       }
     ]
   },
