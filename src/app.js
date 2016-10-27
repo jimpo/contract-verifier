@@ -1,14 +1,14 @@
+import {observe} from 'mobx';
+//import solc from 'solc/wrapper';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import Web3 from 'web3';
-
-import {observe} from 'mobx';
 
 import Application from './components/Application';
 import ApplicationStore from './stores/ApplicationStore';
 
 
-const sourceLinkedABI = [{"constant":true,"inputs":[],"name":"sourceURL","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function"}];
+const SOURCE_LINKED_ABI = [{"constant":true,"inputs":[],"name":"sourceURL","outputs":[{"name":"","type":"string"}],"payable":false,"type":"function"}];
 
 window.addEventListener('load', () => {
   const store = new ApplicationStore();
@@ -18,36 +18,25 @@ window.addEventListener('load', () => {
     store.web3 = new Web3(web3.currentProvider);
   }
 
+    //solc.loadRemoteVersion('latest', () => console.log('loaded'));
+
   observe(store, 'contractAddress', (address) => {
     if (store.contractAddressValid) {
       store.error = null;
       store.bytecode = null;
       store.sourceCode = null;
 
-      // Fetch bytecode
-      store.web3.eth.getCode(address, (error, bytecode) => {
-        if (error) {
-          console.error(error);
-          store.error = error;
-          return;
-        }
+      const sourceCodePromise = getSourceCode(store.web3, store.contractAddress);
+      const bytecodePromise = getBytecode(store.web3, store.contractAddress);
 
-        store.bytecode = bytecode;
-      });
+      sourceCodePromise.then((sourceCode) => store.sourceCode = sourceCode);
+      bytecodePromise.then((bytecode) => store.bytecode = bytecode);
 
-      // Fetch source code
-      const SourceLinked = web3.eth.contract(sourceLinkedABI);
-      SourceLinked.at(address).sourceURL.call((error, sourceURL) => {
-        if (error) {
-          store.error = error;
-          return;
-        }
-
-        fetch(sourceURL)
-          .then((response) => response.text())
-          .then((sourceCode) => store.sourceCode = sourceCode)
-          .catch((error) => store.error = error);
-      });
+      Promise.all([sourceCodePromise, bytecodePromise])
+        .then(([sourceCode, bytecode]) => {
+          console.log(solc.compile(sourceCode));
+        })
+        .catch((error) => store.error = error);
     }
   });
 
@@ -56,3 +45,36 @@ window.addEventListener('load', () => {
     document.getElementById('root')
   );
 });
+
+function getBytecode(web3, address) {
+  return new Promise((resolve, reject) => {
+    web3.eth.getCode(address, (error, bytecode) => {
+      if (error) {
+        reject(error);
+      }
+      else {
+        resolve(bytecode);
+      }
+    });
+  });
+}
+
+function getSourceURL(web3, address) {
+  return new Promise((resolve, reject) => {
+    const SourceLinked = web3.eth.contract(SOURCE_LINKED_ABI);
+    SourceLinked.at(address).sourceURL.call((error, sourceURL) => {
+      if (error) {
+        reject(error);
+      }
+      else {
+        resolve(sourceURL);
+      }
+    });
+  });
+}
+
+function getSourceCode(web3, address) {
+  return getSourceURL(web3, address)
+    .then((sourceURL) => fetch(sourceURL))
+    .then((response) => response.text());
+}
