@@ -4,6 +4,9 @@
   "description": "DApp for looking up and verifying contract source code",
   "author": "jim.posen@gmail.com",
   "license": "MIT",
+  "scripts": {
+    "start": "node_modules/webpack-dev-server/bin/webpack-dev-server.js"
+  },
   "devDependencies": {
     "babel-core": "^6.17.0",
     "babel-loader": "^6.2.5",
