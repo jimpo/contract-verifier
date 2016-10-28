@@ -4,6 +4,7 @@ import {observer} from 'mobx-react';
 
 function ContractAddressInput(props) {
   let error = props.store.error;
+  let success = props.store.success;
 
   let warning = null;
   if (props.store.contractAddress && !props.store.contractAddressValid) {
@@ -19,6 +20,9 @@ function ContractAddressInput(props) {
   else if (warning) {
     helpBlock = <span className="help-block">{warning}</span>;
     classes.push('has-warning');
+  }
+  else if (success == true) {
+    classes.push('has-success');
   }
 
   return (

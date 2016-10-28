@@ -3,6 +3,7 @@ import {observer} from 'mobx-react';
 
 import AlertBox from './AlertBox';
 import ContractAddressInput from './ContractAddressInput';
+import ContractSourceCodeInput from './ContractSourceCodeInput';
 
 require('bootstrap/less/bootstrap.less');
 require('../style.less');
@@ -25,6 +26,9 @@ function Application(props) {
           {props.store.bytecode}
         </pre>
       </div>
+
+      <h2>Contract Uploader</h2>
+      <ContractSourceCodeInput store={props.store}/>
     </div>
   );
 }
